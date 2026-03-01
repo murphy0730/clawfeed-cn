@@ -2,41 +2,74 @@
   "pages": [
     {
       "path": "pages/index/index",
-      "style": { "navigationBarTitleText": "ClawFeed" }
+      "style": {
+        "navigationBarTitleText": "ClawFeed",
+        "navigationBarBackgroundColor": "#0a0a0f",
+        "navigationBarTextStyle": "white"
+      }
     },
     {
       "path": "pages/digest/detail",
-      "style": { "navigationBarTitleText": "摘要详情" }
+      "style": {
+        "navigationBarTitleText": "摘要详情",
+        "navigationBarBackgroundColor": "#0a0a0f",
+        "navigationBarTextStyle": "white"
+      }
     },
     {
       "path": "pages/marks/index",
-      "style": { "navigationBarTitleText": "我的收藏" }
+      "style": {
+        "navigationBarTitleText": "我的收藏",
+        "navigationBarBackgroundColor": "#0a0a0f",
+        "navigationBarTextStyle": "white"
+      }
     },
     {
       "path": "pages/sources/index",
-      "style": { "navigationBarTitleText": "信息源" }
+      "style": {
+        "navigationBarTitleText": "信息源",
+        "navigationBarBackgroundColor": "#0a0a0f",
+        "navigationBarTextStyle": "white"
+      }
     },
     {
       "path": "pages/packs/index",
-      "style": { "navigationBarTitleText": "Pack 市场" }
+      "style": {
+        "navigationBarTitleText": "Pack 市场",
+        "navigationBarBackgroundColor": "#0a0a0f",
+        "navigationBarTextStyle": "white"
+      }
     },
     {
       "path": "pages/packs/detail",
-      "style": { "navigationBarTitleText": "Pack 详情" }
+      "style": {
+        "navigationBarTitleText": "Pack 详情",
+        "navigationBarBackgroundColor": "#0a0a0f",
+        "navigationBarTextStyle": "white"
+      }
     },
     {
       "path": "pages/feedback/index",
-      "style": { "navigationBarTitleText": "反馈" }
+      "style": {
+        "navigationBarTitleText": "反馈",
+        "navigationBarBackgroundColor": "#0a0a0f",
+        "navigationBarTextStyle": "white"
+      }
     },
     {
       "path": "pages/profile/index",
-      "style": { "navigationBarTitleText": "个人中心" }
+      "style": {
+        "navigationBarTitleText": "个人中心",
+        "navigationBarBackgroundColor": "#0a0a0f",
+        "navigationBarTextStyle": "white"
+      }
     }
   ],
   "tabBar": {
-    "color": "#999",
-    "selectedColor": "#333",
-    "backgroundColor": "#fff",
+    "color": "#8888a0",
+    "selectedColor": "#00d4ff",
+    "backgroundColor": "#0a0a0f",
+    "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -57,9 +90,9 @@
     ]
   },
   "globalStyle": {
-    "navigationBarTextStyle": "black",
+    "navigationBarTextStyle": "white",
     "navigationBarTitleText": "ClawFeed",
-    "navigationBarBackgroundColor": "#ffffff",
-    "backgroundColor": "#f5f5f5"
+    "navigationBarBackgroundColor": "#0a0a0f",
+    "backgroundColor": "#0a0a0f"
   }
 }

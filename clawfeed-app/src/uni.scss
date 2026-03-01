@@ -1,0 +1,120 @@
+// ClawFeed Cyberpunk Theme - Global Style Variables
+// ================================================
+
+// Color System
+// ------------
+$color-bg-primary: #0a0a0f;      // Main background (near black)
+$color-bg-secondary: #13131a;    // Card background
+$color-bg-tertiary: #1a1a24;     // Elevated surface
+$color-border: #2a2a3a;          // Subtle border
+$color-border-glow: #3a3a4a;     // Glowing border
+
+$color-text-primary: #e8e8f0;    // Light text
+$color-text-secondary: #8888a0;  // Muted text (gray-purple)
+$color-text-tertiary: #5a5a70;   // Very muted text
+
+// Neon Accent Colors
+$color-neon-cyan: #00d4ff;       // Primary accent
+$color-neon-purple: #a855f7;     // Secondary accent
+$color-neon-green: #22c55e;      // Success
+$color-neon-orange: #f59e0b;     // Warning
+$color-neon-red: #ef4444;        // Error
+$color-neon-pink: #ec4899;       // Tertiary accent
+
+// Gradients
+$gradient-primary: linear-gradient(135deg, #00d4ff, #a855f7);
+$gradient-secondary: linear-gradient(135deg, #a855f7, #ec4899);
+$gradient-glow: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(168, 85, 247, 0.3));
+
+// Typography
+// ----------
+$font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+
+$font-size-xs: 22rpx;
+$font-size-sm: 24rpx;
+$font-size-base: 28rpx;
+$font-size-md: 30rpx;
+$font-size-lg: 32rpx;
+$font-size-xl: 36rpx;
+$font-size-2xl: 40rpx;
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// Spacing
+// -------
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+$spacing-xl: 48rpx;
+$spacing-2xl: 64rpx;
+
+// Border Radius
+// -------------
+$radius-sm: 8rpx;
+$radius-md: 16rpx;
+$radius-lg: 24rpx;
+$radius-xl: 32rpx;
+$radius-full: 999rpx;
+
+// Shadows
+// -------
+$shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+$shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.4);
+$shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.5);
+$shadow-glow-cyan: 0 0 20rpx rgba(0, 212, 255, 0.4);
+$shadow-glow-purple: 0 0 20rpx rgba(168, 85, 247, 0.4);
+$shadow-glow-green: 0 0 16rpx rgba(34, 197, 94, 0.4);
+
+// Transitions
+// -----------
+$transition-fast: 0.15s ease;
+$transition-normal: 0.25s ease;
+$transition-slow: 0.4s ease;
+
+// Z-Index Layers
+// --------------
+$z-dropdown: 100;
+$z-sticky: 200;
+$z-modal: 300;
+$z-toast: 400;
+
+// Mixins (as utility classes in CSS)
+// -----------------------------------
+
+// Glassmorphism card (H5 only - fallback for MP)
+%glass-card {
+  background: rgba(19, 19, 26, 0.85);
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+}
+
+// Neon glow effect
+%neon-glow {
+  box-shadow: $shadow-glow-cyan;
+}
+
+// CSS Custom Properties for dynamic theming
+// ------------------------------------------
+:root {
+  --color-bg-primary: #{$color-bg-primary};
+  --color-bg-secondary: #{$color-bg-secondary};
+  --color-bg-tertiary: #{$color-bg-tertiary};
+  --color-border: #{$color-border};
+  --color-text-primary: #{$color-text-primary};
+  --color-text-secondary: #{$color-text-secondary};
+  --color-neon-cyan: #{$color-neon-cyan};
+  --color-neon-purple: #{$color-neon-purple};
+  --color-neon-green: #{$color-neon-green};
+  --color-neon-orange: #{$color-neon-orange};
+  --color-neon-red: #{$color-neon-red};
+  --color-neon-pink: #{$color-neon-pink};
+}

@@ -1,44 +1,92 @@
 <template>
-  <view class="container">
-    <!-- Submit new feedback -->
-    <view class="form-section">
-      <textarea
-        v-model="message"
-        class="textarea"
-        placeholder="写下你的反馈或建议..."
-        :maxlength="1000"
-      />
-      <button class="btn-submit" :loading="submitting" @click="submit">
-        提交反馈
-      </button>
+  <view class="page-container">
+    <!-- Submit section -->
+    <view class="submit-section">
+      <view class="input-wrapper">
+        <textarea
+          v-model="message"
+          class="feedback-input"
+          placeholder="写下你的反馈或建议..."
+          placeholder-class="input-placeholder"
+          :maxlength="1000"
+        />
+        <view class="char-count">
+          <text class="count-text">{{ message.length }}/1000</text>
+        </view>
+      </view>
+      <view
+        class="submit-btn"
+        :class="{ disabled: !message.trim() || submitting }"
+        @click="submit"
+      >
+        <text v-if="!submitting" class="submit-text">提交反馈</text>
+        <view v-else class="submit-spinner"></view>
+      </view>
     </view>
 
     <!-- Feedback history -->
-    <view class="section-title">历史反馈</view>
-    <view v-if="loading" class="loading">加载中...</view>
-    <view v-for="item in feedbackList" :key="item.id" class="feedback-card">
-      <text class="fb-message">{{ item.message }}</text>
-      <text class="fb-time">{{ item.created_at }}</text>
-      <view v-if="item.reply" class="fb-reply">
-        <text class="reply-label">回复：</text>
-        <text class="reply-text">{{ item.reply }}</text>
+    <view class="history-section">
+      <view class="section-header">
+        <text class="section-title">历史反馈</text>
+      </view>
+
+      <!-- Loading -->
+      <view v-if="loading" class="loading-wrapper">
+        <XLoading text="加载中..." :size="48" />
+      </view>
+
+      <!-- Empty -->
+      <XEmpty
+        v-else-if="!feedbackList.length"
+        icon="💬"
+        title="暂无反馈记录"
+        description="你的反馈会帮助我们做得更好"
+      />
+
+      <!-- Feedback list -->
+      <view v-else class="feedback-list">
+        <view
+          v-for="(item, index) in feedbackList"
+          :key="item.id"
+          class="feedback-card"
+          :style="{ animationDelay: index * 0.05 + 's' }"
+        >
+          <view class="feedback-header">
+            <text class="feedback-time">{{ formatDate(item.created_at) }}</text>
+          </view>
+          <text class="feedback-message">{{ item.message }}</text>
+          <view v-if="item.reply" class="reply-section">
+            <view class="reply-header">
+              <text class="reply-label">官方回复</text>
+            </view>
+            <text class="reply-text">{{ item.reply }}</text>
+          </view>
+        </view>
       </view>
     </view>
-    <view v-if="!loading && !feedbackList.length" class="empty">
-      暂无反馈记录
-    </view>
+
+    <!-- Bottom padding -->
+    <view class="bottom-padding"></view>
   </view>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { useApi } from "../../composables/useApi";
+import XLoading from "../../components/XLoading.vue";
+import XEmpty from "../../components/XEmpty.vue";
 
 const api = useApi();
 const message = ref("");
 const submitting = ref(false);
 const loading = ref(true);
 const feedbackList = ref([]);
+
+function formatDate(dateStr) {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
 
 async function fetchFeedback() {
   loading.value = true;
@@ -57,10 +105,8 @@ async function fetchFeedback() {
 
 async function submit() {
   const msg = message.value.trim();
-  if (!msg) {
-    uni.showToast({ title: "请输入反馈内容", icon: "none" });
-    return;
-  }
+  if (!msg || submitting.value) return;
+
   submitting.value = true;
   try {
     await api.createFeedback({ message: msg });
@@ -77,71 +123,181 @@ async function submit() {
 onMounted(() => fetchFeedback());
 </script>
 
-<style scoped>
-.container {
+<style lang="scss" scoped>
+.page-container {
+  min-height: 100vh;
+  background: #0a0a0f;
+}
+
+.submit-section {
+  padding: 24rpx;
+  background: #13131a;
+  border-bottom: 1px solid #2a2a3a;
+}
+
+.input-wrapper {
+  margin-bottom: 16rpx;
+}
+
+.feedback-input {
+  width: 100%;
+  min-height: 200rpx;
+  padding: 20rpx;
+  background: #0a0a0f;
+  border: 1px solid #2a2a3a;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #e8e8f0;
+  line-height: 1.6;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+.feedback-input:focus {
+  border-color: #00d4ff;
+  box-shadow: 0 0 20rpx rgba(0, 212, 255, 0.15);
+}
+
+.input-placeholder {
+  color: #5a5a70;
+}
+
+.char-count {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8rpx;
+}
+
+.count-text {
+  font-size: 22rpx;
+  color: #5a5a70;
+}
+
+.submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx 0;
+  background: linear-gradient(135deg, #00d4ff, #a855f7);
+  border-radius: 16rpx;
+  transition: all 0.25s ease;
+}
+
+.submit-btn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.submit-btn.disabled {
+  opacity: 0.5;
+}
+
+.submit-text {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.submit-spinner {
+  width: 36rpx;
+  height: 36rpx;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.history-section {
   padding: 24rpx;
 }
-.form-section {
-  margin-bottom: 32rpx;
-}
-.textarea {
-  width: 100%;
-  height: 200rpx;
-  padding: 20rpx;
-  background: #fff;
-  border-radius: 12rpx;
-  font-size: 28rpx;
-  border: 1px solid #e8e8e8;
-  box-sizing: border-box;
+
+.section-header {
   margin-bottom: 16rpx;
 }
-.btn-submit {
-  background: #1890ff;
-  color: #fff;
-  border: none;
-}
+
 .section-title {
-  font-size: 28rpx;
+  font-size: 30rpx;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 16rpx;
+  color: #e8e8f0;
 }
+
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 48rpx 0;
+}
+
+.feedback-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
 .feedback-card {
   padding: 24rpx;
+  background: #13131a;
+  border: 1px solid #2a2a3a;
+  border-radius: 20rpx;
+  animation: fade-in 0.3s ease-out backwards;
+}
+
+.feedback-header {
   margin-bottom: 12rpx;
-  background: #fff;
+}
+
+.feedback-time {
+  font-size: 22rpx;
+  color: #5a5a70;
+}
+
+.feedback-message {
+  display: block;
+  font-size: 28rpx;
+  color: #e8e8f0;
+  line-height: 1.7;
+}
+
+.reply-section {
+  margin-top: 16rpx;
+  padding: 16rpx;
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 12rpx;
 }
-.fb-message {
-  font-size: 28rpx;
-  color: #333;
-  display: block;
+
+.reply-header {
   margin-bottom: 8rpx;
 }
-.fb-time {
-  font-size: 22rpx;
-  color: #999;
-  display: block;
-  margin-bottom: 12rpx;
-}
-.fb-reply {
-  background: #f6f8fa;
-  padding: 16rpx;
-  border-radius: 8rpx;
-}
+
 .reply-label {
-  font-size: 24rpx;
-  color: #1890ff;
-  font-weight: 500;
+  font-size: 22rpx;
+  color: #00d4ff;
+  font-weight: 600;
 }
+
 .reply-text {
+  display: block;
   font-size: 26rpx;
-  color: #333;
+  color: #e8e8f0;
+  line-height: 1.6;
 }
-.loading,
-.empty {
-  text-align: center;
-  padding: 40rpx;
-  color: #999;
+
+.bottom-padding {
+  height: 32rpx;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(16rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

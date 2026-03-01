@@ -1,26 +1,70 @@
 <template>
-  <view class="container">
-    <view v-if="loading" class="loading">加载中...</view>
-    <view v-else-if="pack" class="detail">
-      <view class="header">
-        <text class="name">{{ pack.name }}</text>
-        <text class="creator">by {{ pack.creator_name || "匿名" }}</text>
-      </view>
-      <text class="desc">{{ pack.description || "暂无描述" }}</text>
+  <view class="page-container">
+    <!-- Loading -->
+    <view v-if="loading" class="loading-wrapper">
+      <XLoading text="加载中..." :size="64" />
+    </view>
 
-      <view class="section-title">包含的信息源 ({{ (pack.sources || []).length }})</view>
-      <view v-for="(s, i) in pack.sources || []" :key="i" class="source-item">
-        <text class="source-icon">{{ s.icon || "📡" }}</text>
-        <view class="source-info">
-          <text class="source-name">{{ s.name }}</text>
-          <text class="source-type">{{ s.type }}</text>
+    <!-- Content -->
+    <view v-else-if="pack" class="content-wrapper">
+      <!-- Header -->
+      <view class="header">
+        <view class="header-bg"></view>
+        <view class="header-content">
+          <view class="pack-icon-large">
+            <text class="icon-text">📦</text>
+          </view>
+          <text class="pack-name">{{ pack.name }}</text>
+          <text class="pack-creator">by {{ pack.creator_name || "匿名" }}</text>
         </view>
       </view>
 
-      <button class="btn-install" :loading="installing" @click="install">
-        一键安装
-      </button>
+      <!-- Description -->
+      <view class="desc-section">
+        <text class="pack-desc">{{ pack.description || "暂无描述" }}</text>
+      </view>
+
+      <!-- Sources list -->
+      <view class="sources-section">
+        <view class="section-header">
+          <text class="section-title">包含的信息源</text>
+          <text class="section-count">{{ (pack.sources || []).length }} 个</text>
+        </view>
+
+        <view v-if="pack.sources && pack.sources.length" class="sources-list">
+          <view
+            v-for="(s, i) in pack.sources"
+            :key="i"
+            class="source-item"
+            :style="{ animationDelay: i * 0.03 + 's' }"
+          >
+            <view class="source-icon-wrap">
+              <text class="source-icon">{{ s.icon || "📡" }}</text>
+            </view>
+            <view class="source-info">
+              <text class="source-name">{{ s.name }}</text>
+              <text class="source-type">{{ s.type }}</text>
+            </view>
+          </view>
+        </view>
+        <XEmpty v-else icon="📡" title="暂无信息源" />
+      </view>
+
+      <!-- Install button -->
+      <view class="install-section">
+        <view
+          class="install-btn"
+          :class="{ installing: installing }"
+          @click="install"
+        >
+          <text v-if="!installing" class="install-text">一键安装</text>
+          <view v-else class="install-spinner"></view>
+        </view>
+      </view>
     </view>
+
+    <!-- Empty -->
+    <XEmpty v-else icon="📦" title="Pack 不存在" />
   </view>
 </template>
 
@@ -28,6 +72,8 @@
 import { ref, onMounted } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { useApi } from "../../composables/useApi";
+import XLoading from "../../components/XLoading.vue";
+import XEmpty from "../../components/XEmpty.vue";
 
 const api = useApi();
 const pack = ref(null);
@@ -51,7 +97,7 @@ onMounted(async () => {
 });
 
 async function install() {
-  if (!slug) return;
+  if (!slug || installing.value) return;
   installing.value = true;
   try {
     const result = await api.installPack(slug);
@@ -67,67 +113,211 @@ async function install() {
 }
 </script>
 
-<style scoped>
-.container {
-  padding: 24rpx;
+<style lang="scss" scoped>
+.page-container {
+  min-height: 100vh;
+  background: #0a0a0f;
 }
+
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.content-wrapper {
+  min-height: 100vh;
+}
+
 .header {
-  margin-bottom: 16rpx;
+  position: relative;
+  padding: 48rpx 24rpx;
+  overflow: hidden;
 }
-.name {
-  font-size: 36rpx;
+
+.header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(168, 85, 247, 0.15));
+  opacity: 0.6;
+}
+
+.header-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pack-icon-large {
+  width: 100rpx;
+  height: 100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(168, 85, 247, 0.2));
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.icon-text {
+  font-size: 48rpx;
+}
+
+.pack-name {
+  font-size: 40rpx;
   font-weight: 700;
-  color: #333;
-  display: block;
+  color: #e8e8f0;
   margin-bottom: 8rpx;
 }
-.creator {
-  font-size: 24rpx;
-  color: #999;
+
+.pack-creator {
+  font-size: 26rpx;
+  color: #8888a0;
 }
-.desc {
-  font-size: 28rpx;
-  color: #666;
-  margin-bottom: 32rpx;
-  display: block;
+
+.desc-section {
+  padding: 0 24rpx 24rpx;
 }
-.section-title {
+
+.pack-desc {
   font-size: 28rpx;
-  font-weight: 600;
-  color: #333;
+  color: #8888a0;
+  line-height: 1.7;
+}
+
+.sources-section {
+  padding: 0 24rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 16rpx;
 }
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #e8e8f0;
+}
+
+.section-count {
+  font-size: 24rpx;
+  color: #5a5a70;
+}
+
+.sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
 .source-item {
   display: flex;
   align-items: center;
   gap: 16rpx;
-  padding: 16rpx 24rpx;
-  margin-bottom: 8rpx;
-  background: #fff;
+  padding: 20rpx 24rpx;
+  background: #13131a;
+  border: 1px solid #2a2a3a;
+  border-radius: 16rpx;
+  animation: fade-in 0.3s ease-out backwards;
+}
+
+.source-icon-wrap {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 212, 255, 0.1);
   border-radius: 12rpx;
 }
+
 .source-icon {
-  font-size: 36rpx;
-}
-.source-name {
   font-size: 28rpx;
-  color: #333;
+}
+
+.source-info {
+  flex: 1;
+}
+
+.source-name {
   display: block;
+  font-size: 28rpx;
+  color: #e8e8f0;
+  font-weight: 500;
+  margin-bottom: 4rpx;
 }
+
 .source-type {
+  display: block;
   font-size: 22rpx;
-  color: #999;
+  color: #5a5a70;
 }
-.btn-install {
-  margin-top: 40rpx;
-  background: #1890ff;
-  color: #fff;
-  border: none;
-  border-radius: 12rpx;
+
+.install-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx;
+  background: rgba(10, 10, 15, 0.95);
+  border-top: 1px solid #2a2a3a;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
 }
-.loading {
-  text-align: center;
-  padding: 60rpx;
-  color: #999;
+
+.install-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28rpx 0;
+  background: linear-gradient(135deg, #00d4ff, #a855f7);
+  border-radius: 20rpx;
+  transition: all 0.25s ease;
+}
+
+.install-btn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.install-btn.installing {
+  opacity: 0.7;
+}
+
+.install-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.install-spinner {
+  width: 36rpx;
+  height: 36rpx;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
