@@ -1,32 +1,33 @@
 # ClawFeed
 
-AI-powered news digest tool. Automatically generates structured summaries (4H/daily/weekly/monthly) from Twitter and RSS feeds.
+AI-powered news digest tool. Automatically generates structured summaries (4H/daily/weekly/monthly) from Twitter, RSS, HackerNews, Reddit, GitHub Trending and more.
 
 ## Credentials & Dependencies
 
-ClawFeed runs in **read-only mode** with zero credentials — browse digests, view feeds, switch languages. Authentication features (bookmarks, sources, packs) require additional credentials.
+ClawFeed runs in **read-only mode** with zero credentials — browse digests, view feeds. Authentication features (bookmarks, sources, packs) require WeChat credentials or dev-login.
 
 | Credential | Purpose | Required |
 |-----------|---------|----------|
-| `GOOGLE_CLIENT_ID` | Google OAuth login | For auth features |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth login | For auth features |
-| `SESSION_SECRET` | Session cookie encryption | For auth features |
+| `WECHAT_APPID` | WeChat Mini-Program login | For production auth |
+| `WECHAT_SECRET` | WeChat Mini-Program login | For production auth |
+| `JWT_SECRET` | JWT token signing | Recommended |
 | `API_KEY` | Digest creation endpoint protection | For write API |
 
-**Runtime dependency:** SQLite via `better-sqlite3` (native addon, bundled). No external database server required.
+**Runtime dependency:** SQLite (development) or MySQL (production). No native addons required.
 
 ## Setup
 
 ```bash
 # Install dependencies
-npm install
+pip install -r requirements.txt
 
 # Copy environment config
 cp .env.example .env
 # Edit .env with your settings
 
 # Start API server
-npm start
+uvicorn app.main:app --reload --port 8000
+# → Swagger UI at http://localhost:8000/docs
 ```
 
 ## Environment Variables
@@ -35,17 +36,17 @@ Configure in `.env` file:
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
-| `DIGEST_PORT` | Server port | No | 8767 |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID | For auth | - |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | For auth | - |
-| `SESSION_SECRET` | Session cookie encryption key | For auth | - |
-| `API_KEY` | Digest creation API key | For write API | - |
-| `AI_DIGEST_DB` | SQLite database path | No | `data/digest.db` |
+| `DATABASE_URL` | Database connection URL | No | `sqlite:///data/clawfeed.db` |
+| `DIGEST_PORT` | Server port | No | 8000 |
+| `WECHAT_APPID` | WeChat Mini-Program App ID | For auth | - |
+| `WECHAT_SECRET` | WeChat Mini-Program App Secret | For auth | - |
+| `JWT_SECRET` | JWT signing key | Recommended | dev-jwt-secret |
+| `API_KEY` | Admin API key | For write API | - |
 | `ALLOWED_ORIGINS` | CORS allowed origins | No | localhost |
 
 ## API Server
 
-Runs on port `8767` by default. Set `DIGEST_PORT` env to change.
+Runs on port `8000` by default. Swagger UI available at `/docs`.
 
 ### Endpoints
 
@@ -53,39 +54,25 @@ Runs on port `8767` by default. Set `DIGEST_PORT` env to change.
 |--------|------|-------------|------|
 | GET | /api/digests | List digests (?type=4h\|daily\|weekly&limit=20&offset=0) | - |
 | GET | /api/digests/:id | Get single digest | - |
-| POST | /api/digests | Create digest (internal) | - |
-| GET | /api/auth/google | Start Google OAuth flow | - |
-| GET | /api/auth/callback | OAuth callback endpoint | - |
-| GET | /api/auth/me | Get current user info | Yes |
-| POST | /api/auth/logout | Logout user | Yes |
-| GET | /api/marks | List user bookmarks | Yes |
-| POST | /api/marks | Add bookmark | Yes |
-| DELETE | /api/marks/:id | Remove bookmark | Yes |
-| GET | /api/config | Get configuration | - |
-| PUT | /api/config | Update configuration | - |
-
-## Web Dashboard
-
-Serve `web/index.html` via your reverse proxy or any static file server.
+| POST | /api/digests | Create digest | API Key |
+| POST | /api/auth/login | WeChat login (code → JWT) | - |
+| POST | /api/auth/dev-login | Dev login (no WeChat needed) | - |
+| GET | /api/auth/me | Get current user info | JWT |
+| GET | /api/marks | List user bookmarks | JWT |
+| POST | /api/marks | Add bookmark | JWT |
+| DELETE | /api/marks/:id | Remove bookmark | JWT |
+| GET | /api/sources | List sources | - |
+| POST | /api/sources | Create source | JWT |
+| POST | /api/sources/resolve | Auto-detect source from URL | JWT |
+| GET | /api/subscriptions | List subscriptions | JWT |
+| POST | /api/subscriptions | Subscribe to source | JWT |
+| GET | /api/packs | List source packs | - |
+| POST | /api/packs/:slug/install | Install pack | JWT |
+| POST | /api/feedback | Submit feedback | - |
+| GET | /feed/:slug.json | JSON Feed output | - |
+| GET | /feed/:slug.rss | RSS Feed output | - |
 
 ## Templates
 
 - `templates/curation-rules.md` — Customize feed curation rules
 - `templates/digest-prompt.md` — Customize the AI summarization prompt
-
-## Configuration
-
-Copy `config.example.json` to `config.json` and edit. See README for details.
-
-## Reverse Proxy (Caddy example)
-
-```
-handle /digest/api/* {
-    uri strip_prefix /digest/api
-    reverse_proxy localhost:8767
-}
-handle_path /digest/* {
-    root * /path/to/clawfeed/web
-    file_server
-}
-```

@@ -1,0 +1,34 @@
+{
+  "name": "ClawFeed",
+  "appid": "",
+  "description": "AI 驱动的新闻摘要工具",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "h5": {
+    "devServer": {
+      "port": 5173,
+      "proxy": {
+        "/api": {
+          "target": "http://localhost:8000",
+          "changeOrigin": true
+        },
+        "/feed": {
+          "target": "http://localhost:8000",
+          "changeOrigin": true
+        }
+      }
+    },
+    "title": "ClawFeed",
+    "router": {
+      "mode": "hash"
+    }
+  },
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false
+    },
+    "usingComponents": true
+  }
+}

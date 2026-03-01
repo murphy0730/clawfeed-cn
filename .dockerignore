@@ -1,9 +1,12 @@
-# Dependencies (rebuilt in container)
-node_modules/
-
 # Git
 .git/
 .gitignore
+
+# Python cache
+__pycache__/
+*.py[cod]
+.venv/
+venv/
 
 # Data and databases
 data/
@@ -16,8 +19,11 @@ data/
 .env.*
 !.env.example
 
+# Frontend (built separately)
+clawfeed-app/
+node_modules/
+
 # Development and testing
-test/
 demo-assets/
 docs/
 
@@ -37,4 +43,3 @@ Thumbs.db
 
 # Logs
 *.log
-npm-debug.log*
